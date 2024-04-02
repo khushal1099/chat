@@ -40,8 +40,8 @@ class AddAboutInfoPage extends StatelessWidget {
                         CircleAvatar(
                           radius: 70,
                           backgroundColor: Colors.white,
-                          backgroundImage: image.value.isNotEmpty
-                              ? FileImage(File(image.value))
+                          backgroundImage: controller.image.value.isNotEmpty
+                              ? FileImage(File(controller.image.value))
                               : null,
                         ),
                         Positioned(
@@ -70,7 +70,7 @@ class AddAboutInfoPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: controller.name,
+                      controller: name,
                       decoration: InputDecoration(
                           hintText: "Enter your name",
                           border: OutlineInputBorder(
@@ -81,7 +81,7 @@ class AddAboutInfoPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: controller.number,
+                      controller: number,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
@@ -93,11 +93,12 @@ class AddAboutInfoPage extends StatelessWidget {
                   ),
                   ElevatedButton(
                     onPressed: () {
+
                       AuthUser user = AuthUser(
-                        image: image.toString(),
-                        name: controller.name.text,
+                        image: controller.image.toString(),
+                        name: name.text,
                         email: FirebaseAuth.instance.currentUser?.email??"",
-                        number: controller.number.text,
+                        number: number.text,
                         lastTime: DateTime.now().toString(),
                       );
                       FirebaseFirestore.instance
@@ -106,6 +107,7 @@ class AddAboutInfoPage extends StatelessWidget {
                           .update(
                             user.toJson(),
                           );
+                      controller.image.value = '';
                       Get.offAll(HomePage());
                     },
                     child: Text("Edit"),

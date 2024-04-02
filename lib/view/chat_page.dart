@@ -8,28 +8,40 @@ import 'package:get/get.dart';
 class ChatPage extends StatelessWidget {
   final ChatController cc = Get.put(ChatController());
 
-  ChatPage({super.key});
+  ChatPage({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(cc.receiver_name ?? ""),
+        title: Text(cc.name ?? ""),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Obx(
-              () => StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection("chat")
-                    .doc(cc.chatRoomId.value)
-                    .collection("messages")
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  List<QueryDocumentSnapshot> data = snapshot.data?.docs ?? [];
-                  return ListView.builder(
+      body: Obx(
+        () => StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection("chat")
+              .doc(cc.chatRoomId.value)
+              .collection("messages")
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            }
+
+            final List<DocumentSnapshot> data = snapshot.data?.docs ?? [];
+
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
                     itemCount: data.length,
                     itemBuilder: (context, index) {
                       var item = data[index].data() as Map<String, dynamic>;
@@ -57,50 +69,64 @@ class ChatPage extends StatelessWidget {
                         ),
                       );
                     },
-                  );
-                },
-              ),
-            ),
-          ),
-          TextFormField(
-            controller: cc.chatMsg,
-            onFieldSubmitted: (value) {
-              var cu = FirebaseAuth.instance.currentUser;
-              var uid = cu?.uid ?? "";
-              FsModel().chat(
-                uid,
-                cc.id ?? "",
-                cu?.email ?? "",
-                cc.email ?? "",
-                cc.chatMsg.text,
-                cc.receiver_name ?? "",
-              );
-              cc.chatMsg.clear();
-            },
-            decoration: InputDecoration(
-              hintText: "Enter Message",
-              suffixIcon: IconButton(
-                onPressed: () {
-                  var cu = FirebaseAuth.instance.currentUser;
-                  var uid = cu?.uid ?? "";
-                  print(cu?.email ?? "");
-                  print(cc.email ?? "");
-                  FsModel().chat(
-                    uid,
-                    cc.id ?? "",
-                    cu?.email ?? "",
-                    cc.email ?? "",
-                    cc.chatMsg.text,
-                    cc.receiver_name ?? "",
-                  );
-                  cc.chatMsg.clear();
-                },
-                icon: const Icon(Icons.send),
-              ),
-              border: const OutlineInputBorder(),
-            ),
-          ),
-        ],
+                  ),
+                ),
+                TextFormField(
+                  controller: cc.chatMsg,
+                  onFieldSubmitted: (value) async {
+                    var cu = FirebaseAuth.instance.currentUser;
+                    var uid = cu?.uid ?? "";
+                    var sn = await FirebaseFirestore.instance
+                        .collection("User")
+                        .doc(cu?.uid ?? "")
+                        .get();
+                    var sname = sn.data() as Map<String, dynamic>?;
+                    print(sname?["name"] ?? "");
+                    if (cc.chatMsg.text.isNotEmpty) {
+                      FsModel().chat(
+                          uid,
+                          cc.id ?? "",
+                          cu?.email ?? "",
+                          cc.email ?? "",
+                          cc.chatMsg.text,
+                          cc.name ?? "",
+                          sname?["name"] ?? "");
+                    }
+                    cc.chatMsg.clear();
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Enter Message",
+                    suffixIcon: IconButton(
+                      onPressed: () async {
+                        var cu = FirebaseAuth.instance.currentUser;
+                        var uid = cu?.uid ?? "";
+                        var sn = await FirebaseFirestore.instance
+                            .collection("User")
+                            .doc(cu?.uid ?? "")
+                            .get();
+                        var sname = sn.data() as Map<String, dynamic>?;
+                        print(sname?["name"] ?? "");
+                        if (cc.chatMsg.text.isNotEmpty) {
+                          FsModel().chat(
+                              uid,
+                              cc.id ?? "",
+                              cu?.email ?? "",
+                              cc.email ?? "",
+                              cc.chatMsg.text,
+                              cc.name ?? "",
+                              sname?["name"] ?? "");
+                        }
+                        cc.chatMsg.clear();
+                      },
+                      icon: const Icon(Icons.send),
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

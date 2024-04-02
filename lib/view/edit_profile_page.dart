@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../main.dart';
+
 class EditProfile extends StatelessWidget {
   final EditProfileController controller = Get.put(EditProfileController());
 
@@ -67,7 +69,7 @@ class EditProfile extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
-                    controller: controller.name,
+                    controller: name,
                     decoration: InputDecoration(
                       hintText: "Enter your name",
                       border: OutlineInputBorder(
@@ -79,7 +81,7 @@ class EditProfile extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
-                    controller: controller.number,
+                    controller: number,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
@@ -94,9 +96,9 @@ class EditProfile extends StatelessWidget {
                   onPressed: () async {
                     AuthUser user = AuthUser(
                       image: controller.image.toString(),
-                      name: controller.name.text,
+                      name: name.text,
                       email: FirebaseAuth.instance.currentUser?.email,
-                      number: controller.number.text,
+                      number: number.text,
                       lastTime: DateTime.now().toString(),
                     );
                     try {

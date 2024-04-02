@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:chat/view/chat_page.dart';
 import 'package:chat/view/edit_profile_page.dart';
@@ -32,49 +31,47 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       endDrawer: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection("User")
-              .doc(cu?.uid ?? "")
-              .snapshots(),
-          builder: (context, snapshot) {
-            var data = snapshot.data?.data() as Map<String, dynamic>?;
-            print("data=>$data");
-            var img = data?["image"];
-            print("img=> $img");
-            var base64decode = base64Decode(img);
+        stream: FirebaseFirestore.instance
+            .collection("User")
+            .doc(cu?.uid ?? "")
+            .snapshots(),
+        builder: (context, snapshot) {
+          var data = snapshot.data?.data() as Map<String, dynamic>?;
+          print("data=>$data");
 
-            return NavigationDrawer(
-              children: [
-                UserAccountsDrawerHeader(
-                  currentAccountPicture: CircleAvatar(
-                    // backgroundImage: MemoryImage(base64decode),
-                  ),
-                  accountEmail: Text(cu?.email ?? ""),
-                  accountName: cu != null &&
-                          cu!.providerData[0].providerId == 'google.com'
-                      ? Text(cu?.displayName ?? "")
-                      : Text("${data?["name"]}"),
+          return NavigationDrawer(
+            children: [
+              UserAccountsDrawerHeader(
+                currentAccountPicture: CircleAvatar(
+                  backgroundImage: FileImage(File("${data?["image"]}")),
                 ),
-                ListTile(
-                  onTap: () async {
-                    await FirebaseAuth.instance.signOut();
-                    await GoogleSignIn().signOut();
-                    Get.offAll(
-                      LoginPage(),
-                    );
-                  },
-                  title: Text("Logout"),
-                ),
-                ListTile(
-                  onTap: () {
-                    Get.to(() => EditProfile());
-                  },
-                  title: Text("Edit profile"),
-                  trailing: Icon(Icons.edit),
-                )
-              ],
-            );
-          }),
+                accountEmail: Text(cu?.email ?? ""),
+                accountName:
+                    cu != null && cu!.providerData[0].providerId == 'google.com'
+                        ? Text(cu?.displayName ?? "")
+                        : Text("${data?["name"]}"),
+              ),
+              ListTile(
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+                  await GoogleSignIn().signOut();
+                  Get.offAll(
+                    LoginPage(),
+                  );
+                },
+                title: Text("Logout"),
+              ),
+              ListTile(
+                onTap: () {
+                  Get.to(() => EditProfile());
+                },
+                title: Text("Edit profile"),
+                trailing: Icon(Icons.edit),
+              )
+            ],
+          );
+        },
+      ),
       appBar: AppBar(
         title: Text("HomePage"),
         centerTitle: true,
@@ -82,8 +79,9 @@ class _HomePageState extends State<HomePage> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("chat")
-            .where("receiver_email",
-                isNotEqualTo: FirebaseAuth.instance.currentUser?.email ?? "")
+            .where("sender_email",
+                isEqualTo:
+                    FirebaseAuth.instance.currentUser?.email ?? "")
             .snapshots(),
         builder: (context, snapshot) {
           var list = snapshot.data?.docs ?? [];
@@ -95,21 +93,22 @@ class _HomePageState extends State<HomePage> {
               return ListTile(
                 onTap: () {
                   var uid = FirebaseAuth.instance.currentUser?.uid ?? "";
-
                   String id = (uid == data["receiverId"])
                       ? data["senderId"]
                       : data["receiverId"];
                   String email = (uid == data["receiverId"])
                       ? data["sender_email"]
                       : data["receiver_email"];
-
+                  String name = (uid == data["receiverId"])
+                      ? data["sender_name"]
+                      : data["receiver_name"];
                   Get.to(
                     () => ChatPage(),
                     arguments: {
                       "id": id,
                       "email": email,
+                      "name": name,
                       "roomId": item.id,
-                      "receiver_name": data["receiver_name"]
                     },
                   );
                 },

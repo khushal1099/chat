@@ -7,8 +7,6 @@ class EditProfileController extends GetxController {
   XFile? xFile;
   RxString image = ''.obs;
   final picker = ImagePicker();
-  TextEditingController name = TextEditingController();
-  TextEditingController number = TextEditingController();
 
   void addcameraimage() async{
     final pickedfile = await picker.pickImage(source: ImageSource.camera);

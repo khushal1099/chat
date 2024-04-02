@@ -5,9 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
-RxString image = ''.obs;
+
+TextEditingController name = TextEditingController();
+TextEditingController number = TextEditingController();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

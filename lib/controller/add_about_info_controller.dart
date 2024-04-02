@@ -7,12 +7,8 @@ import '../main.dart';
 class AddAboutInfoController extends GetxController {
 
   XFile? xFile;
-
+  RxString image = ''.obs;
   final picker = ImagePicker();
-
-  TextEditingController name = TextEditingController();
-  TextEditingController number = TextEditingController();
-  TextEditingController email = TextEditingController();
 
   void addcameraimage() async{
     final pickedfile = await picker.pickImage(source: ImageSource.camera);

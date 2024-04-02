@@ -119,7 +119,6 @@ class _LoginPageState extends State<LoginPage> {
                           .signInWithEmailAndPassword(
                           email: email.text, password: password.text);
                       print(user);
-                      FsModel().addUser(user.user);
                       Get.off(
                         HomePage(),
                       );

@@ -1,4 +1,3 @@
-import 'package:chat/controller/chat_controller.dart';
 import 'package:chat/view/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +33,7 @@ class UsersPage extends StatelessWidget {
                     arguments: {
                       "id": item.id,
                       "email": data["email"],
-                      "receiver_name":data["name"],
+                      "name":data["name"],
                     },
                   );
                 },

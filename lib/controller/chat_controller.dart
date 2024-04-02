@@ -6,7 +6,7 @@ class ChatController extends GetxController {
   String? id;
   String? senderId;
   String? email;
-  String? receiver_name;
+  String? name;
   RxString chatRoomId = "".obs;
 
   TextEditingController chatMsg = TextEditingController();
@@ -17,7 +17,7 @@ class ChatController extends GetxController {
     if (Get.arguments != null) {
       id = Get.arguments["id"];
       email = Get.arguments["email"];
-      receiver_name = Get.arguments["receiver_name"];
+      name = Get.arguments["name"];
     }
     senderId = FirebaseAuth.instance.currentUser?.uid ?? "";
     chatRoomId.value = "$senderId-$id";
