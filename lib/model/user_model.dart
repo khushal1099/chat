@@ -10,6 +10,7 @@ String authUserToJson(List<AuthUser> data) => json.encode(List<dynamic>.from(dat
 
 class AuthUser {
   String? name;
+  String? nickname;
   String? number;
   String? lastMsg;
   String? lastTime;
@@ -20,6 +21,7 @@ class AuthUser {
 
   AuthUser({
     this.name,
+    this.nickname,
     this.number,
     this.lastMsg,
     this.lastTime,
@@ -31,6 +33,7 @@ class AuthUser {
 
   factory AuthUser.fromJson(Map<String, dynamic> json) => AuthUser(
     name: json["name"],
+    nickname: json["nickname"],
     number: json["number"],
     lastMsg: json["last_msg"],
     lastTime: json["last_time"],
@@ -42,6 +45,7 @@ class AuthUser {
 
   Map<String, dynamic> toJson() => {
     "name": name,
+    "nickname": nickname,
     "number": number,
     "last_msg": lastMsg,
     "last_time": lastTime,

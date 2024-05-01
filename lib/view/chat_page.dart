@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:chat/controller/chat_controller.dart';
 import 'package:chat/model/fs_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,8 +15,31 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // backgroundColor: Colors.black,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(cc.name ?? ""),
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: Icon(
+            Icons.arrow_back_ios_sharp,
+            // color: Colors.white,
+          ),
+        ),
+        title: ListTile(
+          leading: CircleAvatar(
+            radius: 20,
+            backgroundImage: cc.receiverimage != null
+                ? MemoryImage(base64Decode(cc.receiverimage ?? ""))
+                : null,
+          ),
+          title: Text(
+            cc.name ?? "",
+            // style: TextStyle(color: Colors.white),
+          ),
+        ),
         centerTitle: true,
       ),
       body: Obx(
@@ -84,18 +109,22 @@ class ChatPage extends StatelessWidget {
                     print(sname?["name"] ?? "");
                     if (cc.chatMsg.text.isNotEmpty) {
                       FsModel().chat(
-                          uid,
-                          cc.id ?? "",
-                          cu?.email ?? "",
-                          cc.email ?? "",
-                          cc.chatMsg.text,
-                          cc.name ?? "",
-                          sname?["name"] ?? "");
+                        uid,
+                        cc.id ?? "",
+                        cu?.email ?? "",
+                        cc.email ?? "",
+                        cc.chatMsg.text,
+                        cc.name ?? "",
+                        sname?["name"] ?? "",
+                        sname?["image"] ?? "",
+                        cc.receiverimage ?? "",
+                      );
                     }
                     cc.chatMsg.clear();
                   },
                   decoration: InputDecoration(
                     hintText: "Enter Message",
+                    // hintStyle: TextStyle(color: Colors.white),
                     suffixIcon: IconButton(
                       onPressed: () async {
                         var cu = FirebaseAuth.instance.currentUser;
@@ -108,17 +137,22 @@ class ChatPage extends StatelessWidget {
                         print(sname?["name"] ?? "");
                         if (cc.chatMsg.text.isNotEmpty) {
                           FsModel().chat(
-                              uid,
-                              cc.id ?? "",
-                              cu?.email ?? "",
-                              cc.email ?? "",
-                              cc.chatMsg.text,
-                              cc.name ?? "",
-                              sname?["name"] ?? "");
+                            uid,
+                            cc.id ?? "",
+                            cu?.email ?? "",
+                            cc.email ?? "",
+                            cc.chatMsg.text,
+                            cc.name ?? "",
+                            sname?["name"] ?? "",
+                            sname?["image"] ?? "",
+                            cc.receiverimage ?? "",
+                          );
                         }
                         cc.chatMsg.clear();
                       },
-                      icon: const Icon(Icons.send),
+                      icon: const Icon(
+                        Icons.send,
+                      ),
                     ),
                     border: const OutlineInputBorder(),
                   ),

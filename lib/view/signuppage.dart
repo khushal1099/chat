@@ -1,14 +1,9 @@
-import 'package:chat/controller/login_controller.dart';
 import 'package:chat/controller/signup_controller.dart';
 import 'package:chat/model/fs_model.dart';
 import 'package:chat/view/add_about_infopage.dart';
-import 'package:chat/view/edit_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_navigation/get_navigation.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -88,7 +83,7 @@ class _SignUpPageState extends State<SignUpPage> {
               padding: const EdgeInsets.only(left: 10, right: 10),
               child: Obx(
                 () => TextFormField(
-                  controller:controller. password,
+                  controller: controller.password,
                   style: TextStyle(color: Colors.white),
                   obscureText: controller.passwordVisible.value,
                   decoration: InputDecoration(
@@ -126,6 +121,31 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               child: InkWell(
                 onTap: () async {
+                  // Check if email or password is empty
+                  if (controller.email.text.isEmpty ||
+                      controller.password.text.isEmpty) {
+                    // Show alert dialog if email or password is empty
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Error'),
+                          content:
+                              Text('Please enter both email and password.'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return; // Return to prevent further execution
+                  }
+
                   try {
                     var cu = FirebaseAuth.instance.currentUser;
                     if (cu != null) {
@@ -133,7 +153,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     } else {
                       UserCredential user = await FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
-                              email: controller.email.text, password: controller.password.text);
+                              email: controller.email.text,
+                              password: controller.password.text);
                       print(user.user);
                       FsModel().addUser(user.user);
                       Get.offAll(

@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.only(left: 10, right: 10),
               child: Obx(
-                ()=> TextFormField(
+                () => TextFormField(
                   controller: password,
                   style: TextStyle(color: Colors.white),
                   obscureText: controller.passwordVisible.value,
@@ -94,7 +94,70 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.only(left: 230, top: 10, bottom: 30),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  if (email.text.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Error'),
+                          content: Text('Please enter your email.'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return;
+                  }
+                  try {
+                    await FirebaseAuth.instance.sendPasswordResetEmail(
+                      email: email.text,
+                    );
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Password Reset Email Sent'),
+                          content: Text(
+                              'An email has been sent to reset your password.'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } catch (e) {
+                    print('Error sending password reset email: $e');
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Error'),
+                          content: Text('Failed to send password reset email.'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
                 child: Text(
                   "Forgot password?",
                   style: TextStyle(color: Colors.blue, fontSize: 16),
@@ -110,14 +173,41 @@ class _LoginPageState extends State<LoginPage> {
               ),
               child: InkWell(
                 onTap: () async {
+                  String emailText = email.text.trim();
+                  String passwordText = password.text.trim();
+
+                  if (emailText.isEmpty || passwordText.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Error'),
+                          content:
+                              Text('Please enter both email and password.'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return;
+                  }
+
                   try {
                     var cu = FirebaseAuth.instance.currentUser;
-                    if(cu!=null){
+                    if (cu != null) {
                       print("Already Login");
-                    }else{
+                    } else {
                       UserCredential user = await FirebaseAuth.instance
                           .signInWithEmailAndPassword(
-                          email: email.text, password: password.text);
+                        email: emailText,
+                        password: passwordText,
+                      );
                       print(user);
                       Get.off(
                         HomePage(),
@@ -149,7 +239,8 @@ class _LoginPageState extends State<LoginPage> {
                       print(e.message);
                     }
                   } finally {
-                    controller.setLoading(false); // Set loading state to false after login process
+                    controller.setLoading(
+                        false); // Set loading state to false after login process
                   }
                 },
                 child: Container(
@@ -190,14 +281,17 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   onPressed: () async {
                     var cu = FirebaseAuth.instance.currentUser;
-                    if(cu!=null){
+                    if (cu != null) {
                       print("Already login");
                     } else {
                       var googlesignIn = await GoogleSignIn().signIn();
                       print("googlesignIn $googlesignIn");
                       var auth = await googlesignIn?.authentication;
-                      var credential = GoogleAuthProvider.credential(accessToken: auth?.accessToken,idToken: auth?.idToken);
-                      var data = await FirebaseAuth.instance.signInWithCredential(credential);
+                      var credential = GoogleAuthProvider.credential(
+                          accessToken: auth?.accessToken,
+                          idToken: auth?.idToken);
+                      var data = await FirebaseAuth.instance
+                          .signInWithCredential(credential);
                       FsModel().addUser(data.user);
                       Get.off(
                         HomePage(),
